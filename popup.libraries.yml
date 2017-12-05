@@ -1,0 +1,10 @@
+popup:
+  js:
+    js/popup.js: {}
+    js/popup_commands.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.ajax
