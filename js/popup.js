@@ -3,21 +3,34 @@
  * Adds functionality for popups.
  */
 
-var Popup = (function ($) {
-  'use strict';
+/* eslint no-unused-vars: 0 */
 
-  var body = $('body');
-  var popups = [];
-  var openPopups = {};
-  var openPopupsFifo = [];
+const $ = jQuery;
+const body = $('body');
+const popups = [];
+const openPopups = {};
+const openPopupsFifo = [];
+const overlay = $('.overlay');
 
-  window.addEventListener('keyup', function (event) {
-    // On ESC close upper most popup.
-    if (event.keyCode === 27) {
-      Popup.close();
-    }
-  });
+overlay.on('click', () => {
+  if (openPopupsFifo.length) {
+    openPopupsFifo[openPopupsFifo.length - 1].close();
+  }
+});
 
+/**
+ * Closes the given popup.
+ *
+ * @param {int} id
+ *   The popup id.
+ */
+function closePopup(id) {
+  if (openPopups[id]) {
+    openPopups[id].close();
+  }
+}
+
+class Popup {
   /**
    * Create a popup object.
    *
@@ -27,45 +40,25 @@ var Popup = (function ($) {
    *   The ID of this popup.
    * @constructor
    */
-  function Popup(element, id) {
+  constructor(element, id) {
     this.element = $(element);
     this.id = id || this.element.attr('id');
 
-    this._listeners = {open: [], close: []};
-    this.registerClose();
+    this._listeners = { open: [], close: [] };
 
     popups.push(this);
-    Popup.emit("created", this);
+    this.emitData('created', this);
+
+    this._listeners = {};
+
+    window.addEventListener('keyup', (event) => {
+      // On ESC close upper most popup.
+      if (event.keyCode === 27) {
+        closePopup(this.id);
+      }
+    });
+    this.registerClose();
   }
-
-  Popup.overlay = $(".overlay");
-  Popup.overlay.on("click", function () {
-    if (openPopupsFifo.length) {
-      openPopupsFifo[openPopupsFifo.length - 1].close();
-    }
-  });
-
-  Popup._listeners = {};
-
-  /**
-   * Registers an event listener.
-   *
-   * @param {string} event
-   *   The event name.
-   * @param {Function} callback
-   *   The callback.
-   */
-  Popup.on = function (event, callback) {
-    if (!this._listeners[event]) {
-      this._listeners[event] = [];
-    }
-
-    if (!(callback instanceof Function)) {
-      throw new Error('Callback is not a function: ' + callback);
-    }
-
-    this._listeners[event].push(callback);
-  };
 
   /**
    * Emits an event.
@@ -75,7 +68,7 @@ var Popup = (function ($) {
    * @param {*} data
    *   Array of data to send to listeners.
    */
-  Popup.emit = function (event, data) {
+  emitData(event, data) {
     if (!this._listeners[event]) {
       return;
     }
@@ -84,26 +77,28 @@ var Popup = (function ($) {
       data = [data];
     }
 
-    for (var i = 0; i < this._listeners[event].length; ++i) {
+    for (let i = 0; i < this._listeners[event].length; ++i) {
       this._listeners[event][i].apply(this, data);
     }
-  };
+  }
 
   /**
    * Gets a popup object by ID.
    *
    * @param {string} id
+   *   The id.
    * @return {null|Popup}
+   *   The popup, if found.
    */
-  Popup.getById = function (id) {
-    for (var i = 0; i < popups.length; ++i) {
+  static getById(id) {
+    for (let i = 0; i < popups.length; ++i) {
       if (popups[i].id === id) {
         return popups[i];
       }
     }
 
     return null;
-  };
+  }
 
   /**
    * Extends popup by ID.
@@ -113,18 +108,18 @@ var Popup = (function ($) {
    * @param {Function} extender
    *   The extender callback.
    */
-  Popup.extend = function (id, extender) {
+  extend(id, extender) {
     if (!this._extends) {
       this._extends = {};
 
       // Listen to creation of popups and extend them accordingly.
-      Popup.on("created", function (popup) {
-        var extenders = Popup._extends[popup.id];
+      Popup.on('created', (popup) => {
+        const extenders = this._extends[popup.id];
         if (!extenders) {
           return;
         }
 
-        for (var i = 0; i < extenders.length; ++i) {
+        for (let i = 0; i < extenders.length; ++i) {
           extenders[i](popup);
         }
       });
@@ -134,7 +129,7 @@ var Popup = (function ($) {
       id = [id];
     }
 
-    for (var i = 0; i < id.length; ++i) {
+    for (let i = 0; i < id.length; ++i) {
       if (!this._extends[id[i]]) {
         this._extends[id[i]] = [];
       }
@@ -142,53 +137,42 @@ var Popup = (function ($) {
       this._extends[id[i]].push(extender);
 
       // Make sure existing popups are also extended.
-      var popup = Popup.getById(id[i]);
+      const popup = Popup.getById(id[i]);
       if (popup) {
         extender(popup);
       }
     }
-  };
+  }
 
   /**
    * Creates a new popup from raw html.
    *
    * @param {string} html
    *   Raw html.
-   * @returns {Popup}
+   * @param {string} id
+   *   The id.
+   * @return {Popup}
+   *   The new popup.
    */
-  Popup.register = function (html, id) {
-    var popup = $(html);
+  static register(html, id) {
+    const popup = $(html);
     $('body').append(popup);
     return new Popup(popup, id);
-  };
-
-  /**
-   * Closes popup with given id.
-   *
-   * @param {string} id
-   *   (Optional) The popup id. If left out closes the upper-most.
-   */
-  Popup.close = function (id) {
-    if (!id && openPopupsFifo.length) {
-      openPopupsFifo[openPopupsFifo.length - 1].close();
-    } else if (openPopups[id]) {
-      openPopups[id].close();
-    }
-  };
+  }
 
   /**
    * Closes all popups.
    */
-  Popup.closeAll = function() {
+  static closeAll() {
     while (openPopupsFifo.length) {
       openPopupsFifo[0].close();
     }
-  };
+  }
 
   /**
    * Closes all but current popup.
    */
-  Popup.closePrevious = function() {
+  static closePrevious() {
     if (!openPopupsFifo.length) {
       return;
     }
@@ -196,50 +180,58 @@ var Popup = (function ($) {
     while (openPopupsFifo.length !== 1) {
       openPopupsFifo[0].close();
     }
-  };
+  }
 
   /**
    * Determines whether the popup is open.
+   *
    * @return {boolean}
+   *   True if class is present, false otherwise.
    */
-  Popup.prototype.isOpen = function () {
+  isOpen() {
     return this.element.hasClass('open');
-  };
+  }
 
   /**
    * Toggles the state of the popup.
+   *
    * @return {Popup}
+   *   The toggled popup.
    */
-  Popup.prototype.toggle = function () {
-    this.setState(!this.isOpen());
+  toggle() {
+    this.setState(this.isOpen() ? 0 : 1);
     return this;
-  };
+  }
 
   /**
    * Opens the popup.
+   *
    * @return {Popup}
+   *   The popup.
    */
-  Popup.prototype.open = function () {
+  open() {
     if (this.isOpen()) {
       return this;
     }
 
     this.setState(1);
     return this;
-  };
+  }
 
   /**
    * Closes the popup.
+   *
    * @return {Popup}
+   *   The closed popup.
    */
-  Popup.prototype.close = function () {
+  close() {
     if (!this.isOpen()) {
       return this;
     }
 
     this.setState(0);
     return this;
-  };
+  }
 
   /**
    * Registers an event listener.
@@ -249,13 +241,12 @@ var Popup = (function ($) {
    * @param {Function} callback
    *   The callback.
    */
-  Popup.prototype.on = function (event, callback) {
+  on(event, callback) {
     if (!this._listeners[event]) {
       this._listeners[event] = [];
     }
-
     this._listeners[event].push(callback);
-  };
+  }
 
   /**
    * Emits an event.
@@ -263,28 +254,34 @@ var Popup = (function ($) {
    * @param {string} event
    *   The event name.
    */
-  Popup.prototype.emit = function (event) {
+  emit(event) {
     if (!this._listeners[event]) {
       return;
     }
 
-    for (var i = 0; i < this._listeners[event].length; ++i) {
+    for (let i = 0; i < this._listeners[event].length; ++i) {
       this._listeners[event][i](this);
     }
-  };
+  }
 
   /**
    * Sets the open state.
+   *
+   * @param {int} state
+   *   The state.
    */
-  Popup.prototype.setState = function (state) {
-    state = state ? 1 : 0;
-    var stateSetter = ['removeClass', 'addClass'][state];
-
+  setState(state) {
+    const stateSetter = ['removeClass', 'addClass'][state];
     if (state) {
-      this.id && (openPopups[this.id] = this);
+      if (this.id) {
+        openPopups[this.id] = this;
+      }
       openPopupsFifo.push(this);
-    } else {
-      this.id && delete openPopups[this.id];
+    }
+    else {
+      if (this.id) {
+        delete openPopups[this.id];
+      }
       openPopupsFifo.splice(openPopupsFifo.indexOf(this), 1);
     }
 
@@ -294,29 +291,25 @@ var Popup = (function ($) {
       (state && openPopupsFifo.length === 1) ||
       (!state && openPopupsFifo.length === 0)
     ) {
-      Popup.overlay[stateSetter]('open');
+      overlay[stateSetter]('open');
       body[stateSetter]('no-scroll');
     }
 
     this.emit(['close', 'open'][state]);
-    Popup.emit(['close', 'open'][state], this);
-  };
+    this.emitData(['close', 'open'][state], this);
+  }
 
   /**
    * Registers close buttons that are in the popup.
    */
-  Popup.prototype.registerClose = function () {
-    var self = this;
-
-    $('[data-popup-close]', this.element).once('popup-close-btn').each(function () {
-      $(this).on('click', self.close.bind(self));
+  registerClose() {
+    const self = this;
+    $('[data-popup-close]', this.element).each((index, element) => {
+      $(element).on('click', self.close.bind(self));
     });
 
-    $('[data-popup-toggle]', this.element).once('popup-toggle-btn').each(function () {
-      $(this).on('click', self.toggle.bind(self));
+    $('[data-popup-toggle]', this.element).each((index, element) => {
+      $(element).on('click', self.toggle.bind(self));
     });
-  };
-
-  return Popup;
-
-})(jQuery);
+  }
+}
