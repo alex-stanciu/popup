@@ -1,0 +1,7 @@
+popup_test.test:
+  path: '/popup_test'
+  defaults:
+    _form: '\Drupal\popup_test\Form\PopupTestForm'
+    _title: 'Popup test page'
+  requirements:
+    _permission: 'administer site configuration'

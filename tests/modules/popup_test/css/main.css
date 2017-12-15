@@ -1,0 +1,57 @@
+.popup.open {
+    display: block;
+}
+.popup {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    width: 50%;
+    height: 400px;
+    max-height: 100%;
+    background: #fff;
+    z-index: 100;
+    display: none;
+    overflow: auto;
+}
+.popup .escape-icon {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: url(../img/escape-icon.png) center center/contain no-repeat;
+    z-index: 1;
+    cursor: pointer;
+    text-transform: uppercase
+}
+.popup.open {
+    display: block;
+}
+.popup-title {
+    font-size: 40px;
+    text-align: center;
+    margin-top: 70px;
+}
+.popup-content {
+    max-width: 520px;
+    margin: 70px auto 0;
+    padding: 0 20px;
+}
+.popup-wrapper .popup-content button {
+    margin-top: 20px;
+    width: 100%;
+}
+button.btn.btn-secondary {
+    padding: 15px 40px;
+    font-size: 16px;
+    border: 1px solid #000;
+    background-color: #000;
+    color: #fff;
+    -webkit-transition: all .1s linear;
+    transition: all .1s linear;
+}
+.inner-content {
+    width:430px;
+    margin:0 auto 50px;
+}

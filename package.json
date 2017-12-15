@@ -1,0 +1,60 @@
+{
+  "name": "Drupal",
+  "description": "Drupal is an open source content management platform powering millions of websites and applications.",
+  "license": "GPL-2.0",
+  "private": true,
+  "scripts": {
+    "build:js": "node ./scripts/js/babel-es6-build.js",
+    "watch:js": "cross-env NODE_ENV=development node ./scripts/js/babel-es6-watch.js",
+    "lint:js": "node ./node_modules/eslint/bin/eslint.js --ext=.es6.js . --fix || exit 0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-add-header-comment": "^1.0.3",
+    "babel-preset-env": "^1.6.1",
+    "chokidar": "1.6.1",
+    "cross-env": "^4.0.0",
+    "eslint": "3.19.0",
+    "eslint-config-airbnb": "14.1.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "4.0.0",
+    "eslint-plugin-react": "6.10.3",
+    "glob": "7.1.1"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "modules": false,
+          "targets": {
+            "browsers": [
+              "ie >= 9",
+              "edge >= 13",
+              "firefox >= 5",
+              "opera >= 12",
+              "safari >= 5",
+              "chrome >= 56"
+            ]
+          }
+        }
+      ]
+    ]
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-stanciu/popup.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/alex-stanciu/popup/issues"
+  },
+  "homepage": "https://github.com/alex-stanciu/popup#readme"
+}
