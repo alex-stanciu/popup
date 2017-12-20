@@ -7,13 +7,12 @@ php:
 env:
   global:
     - MODULE_NAME='popup'
-#    - MODULE_TEST_GROUP='popup'
+    - MODULE_TEST_GROUP='popup'
     - DRUPAL_VERSION='^8.4.0'
 
 cache:
   directories:
-    - $HOME/.composer/cache/files
-    - /usr/local/lib/node_modules
+    - /home/travis/.composer/cache/files
 
 before_install:
   # Ensure we have the latest sources.
@@ -71,5 +70,10 @@ before_script:
 
 script:
   - phpcs --report=full --standard=Drupal,DrupalPractice $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME
-  - eslint --color -c $TRAVIS_BUILD_DIR/drupal/core/.eslintrc.json $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME/js
-  - if [ $MODULE_TEST_GROUP ] ; then php $TRAVIS_BUILD_DIR/drupal/core/scripts/run-tests.sh --php `which php` --concurrency 12 --url http://127.0.0.1:8080 --color "$MODULE_TEST_GROUP"; fi
+  - cd $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME/js
+  - ls . | grep '.*\.es6\.js' | xargs eslint --color -c $TRAVIS_BUILD_DIR/drupal/core/.eslintrc.json
+  - cd $TRAVIS_BUILD_DIR/drupal
+  # Start a new detached PhantomJS instance.
+  - if [ $MODULE_TEST_GROUP ] ; then nohup phantomjs --ssl-protocol=any --ignore-ssl-errors=true $TRAVIS_BUILD_DIR/drupal/vendor/jcalderonzumba/gastonjs/src/Client/main.js 8510 1024 768 2>/dev/null & disown ; fi
+  # Run the tests.
+  - if [ $MODULE_TEST_GROUP ] ; then php $TRAVIS_BUILD_DIR/drupal/core/scripts/run-tests.sh --php `which php` --concurrency 12 --url http://127.0.0.1:8080 --color "$MODULE_TEST_GROUP" ; fi

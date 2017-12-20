@@ -2,5 +2,3 @@ popup_test:
   css:
     theme:
       css/main.css: { minified: true }
-  dependencies:
-    - popup/popup

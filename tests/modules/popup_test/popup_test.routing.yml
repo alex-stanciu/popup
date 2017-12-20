@@ -1,5 +1,5 @@
 popup_test.test:
-  path: '/popup_test'
+  path: '/tests/popup_test'
   defaults:
     _form: '\Drupal\popup_test\Form\PopupTestForm'
     _title: 'Popup test page'

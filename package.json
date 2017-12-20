@@ -49,12 +49,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alex-stanciu/popup.git"
+    "url": "git+https://github.com/drupal-generics/popup.git"
   },
   "keywords": [],
   "author": "",
   "bugs": {
-    "url": "https://github.com/alex-stanciu/popup/issues"
+    "url": "https://github.com/drupal-generics/popup/issues"
   },
-  "homepage": "https://github.com/alex-stanciu/popup#readme"
+  "homepage": "https://github.com/drupal-generics/popup#readme"
 }

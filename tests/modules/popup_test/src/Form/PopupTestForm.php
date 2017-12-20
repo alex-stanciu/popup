@@ -1,12 +1,17 @@
 <?php
 
-namespace Drupal\popup\Form;
+namespace Drupal\popup_test\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\popup\Ajax\PopupCommand;
 
+/**
+ * Class PopupTestForm.
+ *
+ * @package Drupal\popup_test\Form
+ */
 class PopupTestForm extends FormBase {
 
   /**
@@ -15,8 +20,7 @@ class PopupTestForm extends FormBase {
    * @return string
    *   The unique string identifying the form.
    */
-  public function getFormId()
-  {
+  public function getFormId() {
     return 'form_popup_test';
   }
 
@@ -34,13 +38,17 @@ class PopupTestForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = [];
     $form['actions']['submit'] = [
+      '#id' => 'popup-form-submit-btn',
       '#type' => 'submit',
       '#value' => $this->t('Save'),
       '#ajax' => [
         'callback' => '::ajaxSubmit',
       ],
     ];
-    $form['#attached']['library'] = ['popup_test/popup_test'];
+    $form['#attached']['library'] = [
+      'popup_test/popup_test',
+      'popup/popup',
+    ];
     return $form;
   }
 
@@ -63,8 +71,10 @@ class PopupTestForm extends FormBase {
    */
   public function ajaxSubmit(array $form, FormStateInterface $form_state) {
     $popup = [
-      '#theme' => 'popup-test-theme',
-      '#content' => ['#markup' => 'Attention! This is a popup! Thank you for your attention.'],
+      '#theme' => 'popup-theme',
+      '#title' => ['#markup' => $this->t('Popup title')],
+      '#content' => ['#markup' => $this->t('Popup body')],
+      '#close' => ['#markup' => $this->t('Close')],
     ];
     $command = new PopupCommand($popup, 'test-popup');
     $response = new AjaxResponse();
